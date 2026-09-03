@@ -6,7 +6,6 @@
   <title>Hunter Cyber Mission - Sweet Edition</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Kanit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * {
@@ -29,7 +28,6 @@
     }
     .game-font { font-family: 'Fredoka', 'Kanit', sans-serif; }
 
-    /* Bento Grid Glassmorphism */
     .bento-card {
       background: rgba(255, 255, 255, 0.94);
       backdrop-filter: blur(24px);
@@ -51,7 +49,6 @@
       box-shadow: 0 0 0 4px rgba(255, 77, 109, 0.2);
     }
 
-    /* ปุ่มกดสไตล์นูนเด้ง Tactile */
     .btn-sweet-pink {
       background: linear-gradient(180deg, #ff758f 0%, #ff4d6d 100%);
       box-shadow: 0 6px 0 #c9184a, 0 10px 20px rgba(255, 77, 109, 0.35);
@@ -94,7 +91,6 @@
       font-weight: 800;
     }
 
-    /* แอนิเมชันลูกเล่นดิ้นได้ */
     @keyframes jellyBounce {
       0%, 100% { transform: scale(1, 1); }
       30% { transform: scale(1.15, 0.85); }
@@ -114,6 +110,21 @@
       50% { filter: drop-shadow(0 0 22px rgba(255, 77, 109, 0.8)); }
     }
     .pulse-glow { animation: pulseGlow 2s infinite; }
+
+    /* Canvas พื้นหลังและหน้าต่างเกม */
+    #game-wrapper {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      display: block;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
   </style>
 </head>
 <body class="w-screen h-screen flex justify-center items-center relative overflow-hidden bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#ffe4e6]">
@@ -167,8 +178,10 @@
       </div>
     </div>
 
-    <p class="text-xs font-bold text-slate-500 mb-2">ผู้เรียนในห้อง: <span id="player-count" class="text-emerald-500 font-black">0</span> คน</p>
-    <div id="host-player-badges" class="flex flex-wrap gap-1.5 justify-center max-h-20 overflow-y-auto mb-3"></div>
+    <p class="text-xs font-bold text-slate-500 mb-2">ผู้เรียนในห้อง: <span id="player-count" class="text-emerald-500 font-black">1</span> คน</p>
+    <div id="host-player-badges" class="flex flex-wrap gap-1.5 justify-center max-h-20 overflow-y-auto mb-3">
+      <span class="bg-pink-100 text-rose-600 border border-pink-300 px-3 py-1 rounded-full text-xs font-bold">คุณครู (Host)</span>
+    </div>
 
     <div class="flex gap-2">
       <button onclick="location.reload()" class="w-1/3 py-3 bg-slate-100 border border-slate-200 text-slate-600 rounded-2xl font-bold text-xs">ย้อนกลับ</button>
@@ -209,6 +222,633 @@
     </button>
   </div>
 
-  <!-- 5. หน้าต่าง Host Live Monitor สดๆ -->
-  <div id="view-host-live" class="hidden w-full h-full bg-slate-900 text-white flex flex-col p-4 sm:p-6 overflow-hidden z-40">
-    <div class="bento-card !bg-slate-800/95 !border-slate-700 p-4 rounded-3xl flex flex-wrap justify-betw
+  <!-- 5. หน้าต่าง Host Live Monitor -->
+  <div id="view-host-live" class="hidden fixed inset-0 w-full h-full bg-slate-900 text-white flex flex-col p-4 sm:p-6 overflow-hidden z-40">
+    <div class="bento-card !bg-slate-800/95 !border-slate-700 p-4 rounded-3xl flex justify-between items-center mb-4">
+      <div>
+        <h2 class="text-lg font-black text-rose-400">📡 การแข่งขันสดแบบเรียลไทม์</h2>
+        <p class="text-xs text-slate-400">ห้อง PIN: <span id="live-pin-text" class="text-white font-bold">------</span></p>
+      </div>
+      <div class="text-3xl font-black text-amber-400 tracking-wider">
+        ⏱️ <span id="host-live-timer">03:00</span>
+      </div>
+      <button onclick="location.reload()" class="px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold">ยุติการแข่งขัน</button>
+    </div>
+    <div class="bento-card !bg-slate-800/95 !border-slate-700 p-4 rounded-3xl flex-1 overflow-y-auto">
+      <h3 class="text-sm font-bold text-slate-400 mb-3 uppercase tracking-wider">รายชื่อผู้เล่นที่กำลังแข่งขัน</h3>
+      <div id="live-ranking-list" class="space-y-2">
+        <div class="p-3 bg-slate-700/60 rounded-xl flex justify-between items-center text-sm font-bold">
+          <span>🥇 ผู้เล่นตัวอย่าง (กำลังกระโดด)</span>
+          <span class="text-sky-400">0 m</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. ตัวเกมหลัก Canvas Engine -->
+  <div id="game-wrapper" class="hidden">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Top Status Bar -->
+    <div class="absolute top-3 left-4 right-4 flex justify-between pointer-events-none z-30">
+      <div class="stat-badge text-amber-500 text-sm font-black">⚡ <span id="ui-energy">5</span></div>
+      <div class="stat-badge text-rose-500 text-sm font-black">⏱️ <span id="ui-timer">03:00</span></div>
+      <div class="stat-badge text-sky-600 text-sm font-black">🎯 <span id="ui-height">0</span> m</div>
+    </div>
+
+    <!-- ปุ่มกดเปิดคลังคำถามตรงกลางล่าง -->
+    <button id="btn-manual-quiz" onclick="showQuizModal()" class="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 px-5 py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 text-white font-black text-xs shadow-lg shadow-rose-500/40 border-2 border-white pointer-events-auto active:scale-95 transition-transform">
+      📝 ตอบคำถามเติมพลังงาน
+    </button>
+
+    <!-- ปุ่มควบคุมการเคลื่อนไหว ซ้าย/ขวา/กระโดด -->
+    <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end z-20 pointer-events-none">
+      <div class="flex gap-3 pointer-events-auto">
+        <button id="btn-ctrl-left" class="w-16 h-16 rounded-2xl bg-white/95 border-2 border-pink-300 text-rose-600 text-2xl font-black shadow-md active:scale-90 active:bg-pink-100 flex items-center justify-center">◀</button>
+        <button id="btn-ctrl-right" class="w-16 h-16 rounded-2xl bg-white/95 border-2 border-pink-300 text-rose-600 text-2xl font-black shadow-md active:scale-90 active:bg-pink-100 flex items-center justify-center">▶</button>
+      </div>
+      <div class="pointer-events-auto">
+        <button id="btn-ctrl-jump" class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white text-3xl font-black shadow-lg shadow-emerald-500/30 border-2 border-white active:scale-90 flex items-center justify-center">🚀</button>
+      </div>
+    </div>
+
+    <!-- กล่องตอบคำถาม Modal -->
+    <div id="quiz-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-50 p-4 hidden">
+      <div class="bento-card p-6 w-full max-w-sm text-center">
+        <h3 id="quiz-question-text" class="text-base font-bold text-slate-800 mb-4 leading-relaxed">กำลังจัดเตรียมข้อสอบ...</h3>
+        <div id="quiz-options-container" class="space-y-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- คลังข้อสอบ Microsoft Word ---
+    const quizDatabase = [
+      { q: "ปุ่มลัดใดใช้สำหรับ 'คัดลอก' (Copy) ข้อความ?", a: "Ctrl + C", b: "Ctrl + V", c: "Ctrl + X", d: "Ctrl + Z", ans: "A" },
+      { q: "ปุ่มลัดใดใช้สำหรับ 'วาง' (Paste) ข้อความ?", a: "Ctrl + P", b: "Ctrl + V", c: "Ctrl + S", d: "Ctrl + C", ans: "B" },
+      { q: "ต้องการบันทึกเอกสาร (Save) ต้องกดปุ่มลัดใด?", a: "Ctrl + S", b: "Ctrl + O", c: "Ctrl + A", d: "Ctrl + N", ans: "A" },
+      { q: "หากต้องการทำข้อความให้เป็น 'ตัวหนา' ต้องใช้คำสั่งใด?", a: "Ctrl + I", b: "Ctrl + U", c: "Ctrl + B", d: "Ctrl + H", ans: "C" },
+      { q: "แท็บใดใน Word ใช้สำหรับใส่ตารางและรูปภาพ?", a: "หน้าแรก (Home)", b: "แทรก (Insert)", c: "ออกแบบ (Design)", d: "มุมมอง (View)", ans: "B" },
+      { q: "คีย์ลัดเลือกข้อความทั้งหมด (Select All) คืออะไร?", a: "Ctrl + A", b: "Ctrl + S", c: "Ctrl + F", d: "Ctrl + Shift", ans: "A" }
+    ];
+
+    // --- ตัวแปรควบคุมระบบห้อง ---
+    let currentRoomPin = "";
+    let currentPlayerName = "ผู้เล่นตัวน้อย";
+    let matchTimeSeconds = 180;
+
+    function goToHostSetup() {
+      currentRoomPin = Math.floor(100000 + Math.random() * 900000).toString();
+      document.getElementById('host-pin-display').innerText = currentRoomPin;
+      
+      const qrcodeBox = document.getElementById("qrcode-box");
+      qrcodeBox.innerHTML = "";
+      const currentUrl = window.location.href.split('?')[0];
+      const joinUrl = `${currentUrl}?pin=${currentRoomPin}`;
+      new QRCode(qrcodeBox, { text: joinUrl, width: 110, height: 110 });
+
+      document.getElementById('view-mode').classList.add('hidden');
+      document.getElementById('view-host').classList.remove('hidden');
+    }
+
+    function goToJoinScreen() {
+      document.getElementById('view-mode').classList.add('hidden');
+      document.getElementById('view-join').classList.remove('hidden');
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('pin')) {
+        document.getElementById('input-join-pin').value = urlParams.get('pin');
+      }
+    }
+
+    function joinGameRoom() {
+      const pin = document.getElementById('input-join-pin').value.trim();
+      const name = document.getElementById('input-join-name').value.trim();
+      if (name !== "") currentPlayerName = name;
+      currentRoomPin = pin || "123456";
+
+      document.getElementById('wait-pin-label').innerText = currentRoomPin;
+      document.getElementById('wait-name-label').innerText = currentPlayerName;
+
+      document.getElementById('view-join').classList.add('hidden');
+      document.getElementById('view-waiting').classList.remove('hidden');
+    }
+
+    function hostStartMatch() {
+      matchTimeSeconds = parseInt(document.getElementById('select-duration').value);
+      energy = parseInt(document.getElementById('input-host-energy').value) || 5;
+      startMainGame();
+    }
+
+    function forceStartSinglePlay() {
+      matchTimeSeconds = 180;
+      energy = 5;
+      startMainGame();
+    }
+
+    // ==========================================
+    // ระบบกราฟิก Canvas และฟิสิกส์การกระโดด
+    // ==========================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const uiEnergy = document.getElementById('ui-energy');
+    const uiTimer = document.getElementById('ui-timer');
+    const uiHeight = document.getElementById('ui-height');
+    const quizModal = document.getElementById('quiz-modal');
+    const quizQuestionText = document.getElementById('quiz-question-text');
+    const quizOptionsContainer = document.getElementById('quiz-options-container');
+
+    let energy = 5;
+    let maxHeight = 0;
+    let timeLeft = 180;
+    let timerInterval = null;
+    let isPaused = false;
+    let isGameOver = false;
+
+    const characterColors = [
+      { main: '#ff758f', dark: '#e01e37', blush: '#ff4d6d' },
+      { main: '#ffd166', dark: '#f77f00', blush: '#ff5400' },
+      { main: '#a7c957', dark: '#6a994e', blush: '#f28482' },
+      { main: '#64dfdf', dark: '#0096c7', blush: '#ff758f' },
+      { main: '#c77dff', dark: '#7b2cbf', blush: '#ff4d6d' }
+    ];
+    let myColor = characterColors[0];
+    let walkCycle = 0;
+    let blinkTimer = 0;
+    let isBlinking = false;
+    let sparkles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    const player = {
+      x: 0,
+      y: 0,
+      radius: 22,
+      width: 44,
+      height: 44,
+      vx: 0,
+      vy: 0,
+      speed: 6.0,
+      jumpStrength: -12.5,
+      doubleJumpStrength: -13.5,
+      gravity: 0.36,
+      isGrounded: true,
+      jumpCount: 0
+    };
+
+    let clouds = [];
+    function initClouds() {
+      clouds = [];
+      const count = Math.ceil(canvas.width / 160) + 3;
+      for (let i = 0; i < count; i++) {
+        clouds.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          scale: 0.8 + Math.random() * 0.6,
+          speed: 0.2 + Math.random() * 0.3
+        });
+      }
+    }
+
+    const platformTypes = ['jelly', 'waffle', 'cake', 'choco'];
+    let platforms = [];
+
+    function initPlatforms() {
+      platforms = [];
+      const startY = canvas.height - 140;
+      platforms.push({ x: canvas.width / 2 - 120, y: startY, width: 240, height: 26, type: 'waffle' });
+
+      let curY = startY - 55;
+      while (curY > -100) {
+        const pWidth = 140 + Math.random() * 50;
+        const pX = Math.random() * (canvas.width - pWidth);
+        platforms.push({
+          x: pX,
+          y: curY,
+          width: pWidth,
+          height: 24,
+          type: platformTypes[Math.floor(Math.random() * platformTypes.length)]
+        });
+        curY -= (50 + Math.random() * 12);
+      }
+    }
+
+    const keys = { left: false, right: false };
+    let facing = 'right';
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') { keys.left = true; facing = 'left'; }
+      if (e.code === 'ArrowRight' || e.code === 'KeyD') { keys.right = true; facing = 'right'; }
+      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') jump();
+    });
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+      if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+    });
+
+    const btnLeft = document.getElementById('btn-ctrl-left');
+    const btnRight = document.getElementById('btn-ctrl-right');
+    const btnJump = document.getElementById('btn-ctrl-jump');
+
+    btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); keys.left = true; facing = 'left'; });
+    btnLeft.addEventListener('touchend', () => keys.left = false);
+    btnLeft.addEventListener('mousedown', () => { keys.left = true; facing = 'left'; });
+    btnLeft.addEventListener('mouseup', () => keys.left = false);
+
+    btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); keys.right = true; facing = 'right'; });
+    btnRight.addEventListener('touchend', () => keys.right = false);
+    btnRight.addEventListener('mousedown', () => { keys.right = true; facing = 'right'; });
+    btnRight.addEventListener('mouseup', () => keys.right = false);
+
+    btnJump.addEventListener('click', jump);
+
+    function startMainGame() {
+      document.getElementById('view-mode').classList.add('hidden');
+      document.getElementById('view-host').classList.add('hidden');
+      document.getElementById('view-join').classList.add('hidden');
+      document.getElementById('view-waiting').classList.add('hidden');
+      document.getElementById('game-wrapper').classList.remove('hidden');
+
+      resizeCanvas();
+      myColor = characterColors[Math.floor(Math.random() * characterColors.length)];
+      initClouds();
+      initPlatforms();
+
+      player.x = platforms[0].x + (platforms[0].width / 2) - (player.width / 2);
+      player.y = platforms[0].y - player.height;
+      player.vy = 0;
+      player.isGrounded = true;
+      player.jumpCount = 0;
+
+      uiEnergy.innerText = energy;
+      timeLeft = matchTimeSeconds;
+      updateTimerDisplay();
+
+      timerInterval = setInterval(() => {
+        if (!isPaused && !isGameOver) {
+          timeLeft--;
+          updateTimerDisplay();
+          if (timeLeft <= 0) endGame("⏰ หมดเวลาแข่งขัน!");
+        }
+      }, 1000);
+
+      loop();
+    }
+
+    function updateTimerDisplay() {
+      const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+      const s = (timeLeft % 60).toString().padStart(2, '0');
+      uiTimer.innerText = `${m}:${s}`;
+    }
+
+    function jump() {
+      if (isPaused || isGameOver) return;
+
+      if (energy <= 0) {
+        showQuizModal();
+        return;
+      }
+
+      if (player.isGrounded) {
+        player.vy = player.jumpStrength;
+        player.isGrounded = false;
+        player.jumpCount = 1;
+        energy--;
+        uiEnergy.innerText = energy;
+        if (energy === 0) setTimeout(showQuizModal, 250);
+      } else if (player.jumpCount === 1) {
+        player.vy = player.doubleJumpStrength;
+        player.jumpCount = 2;
+        addSparkles(player.x + player.width / 2, player.y + player.height);
+      }
+    }
+
+    function addSparkles(x, y) {
+      for (let i = 0; i < 8; i++) {
+        sparkles.push({
+          x: x, y: y,
+          vx: (Math.random() - 0.5) * 6,
+          vy: Math.random() * 3 + 1,
+          size: Math.random() * 5 + 3,
+          alpha: 1,
+          color: ['#ffbe0b', '#fb5607', '#ff006e', '#8338ec', '#3a86ff'][Math.floor(Math.random() * 5)]
+        });
+      }
+    }
+
+    function showQuizModal() {
+      isPaused = true;
+      quizModal.classList.remove('hidden');
+
+      const q = quizDatabase[Math.floor(Math.random() * quizDatabase.length)];
+      quizQuestionText.innerText = q.q;
+      quizOptionsContainer.innerHTML = "";
+
+      const choices = [
+        { key: 'A', text: q.a },
+        { key: 'B', text: q.b },
+        { key: 'C', text: q.c },
+        { key: 'D', text: q.d }
+      ];
+
+      choices.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'w-full py-3 px-4 rounded-xl bg-pink-50 border border-pink-200 text-slate-700 font-bold text-sm text-left active:bg-rose-500 active:text-white transition-colors';
+        btn.innerText = `${c.key}. ${c.text}`;
+        btn.onclick = () => {
+          if (c.key === q.ans) {
+            energy = 5;
+            uiEnergy.innerText = energy;
+            quizModal.classList.add('hidden');
+            isPaused = false;
+            player.vy = 0;
+            player.isGrounded = true;
+            player.jumpCount = 0;
+          } else {
+            btn.classList.add('!bg-red-100', '!border-red-400');
+            btn.innerText = `❌ ${c.key}. ${c.text}`;
+          }
+        };
+        quizOptionsContainer.appendChild(btn);
+      });
+    }
+
+    function endGame(reason) {
+      isGameOver = true;
+      clearInterval(timerInterval);
+      alert(`${reason}\nคุณ ${currentPlayerName} พิชิตความสูงได้: ${maxHeight} เมตร 🎈`);
+      location.reload();
+    }
+
+    function update() {
+      if (isPaused || isGameOver) return;
+
+      blinkTimer++;
+      if (blinkTimer > 150) {
+        isBlinking = true;
+        if (blinkTimer > 160) {
+          isBlinking = false;
+          blinkTimer = 0;
+        }
+      }
+
+      if (keys.left) { player.vx = -player.speed; walkCycle += 0.3; }
+      else if (keys.right) { player.vx = player.speed; walkCycle += 0.3; }
+      else player.vx = 0;
+
+      player.x += player.vx;
+      player.vy += player.gravity;
+      player.y += player.vy;
+
+      if (player.x + player.width < 0) player.x = canvas.width;
+      if (player.x > canvas.width) player.x = -player.width;
+
+      clouds.forEach(c => {
+        c.x += c.speed;
+        if (c.x > canvas.width + 100) c.x = -100;
+      });
+
+      sparkles.forEach((s, idx) => {
+        s.x += s.vx; s.y += s.vy; s.alpha -= 0.03;
+        if (s.alpha <= 0) sparkles.splice(idx, 1);
+      });
+
+      if (player.y < canvas.height * 0.45) {
+        const offset = (canvas.height * 0.45) - player.y;
+        player.y = canvas.height * 0.45;
+        maxHeight += Math.floor(offset / 5);
+        uiHeight.innerText = maxHeight;
+
+        clouds.forEach(c => {
+          c.y += offset * 0.25;
+          if (c.y > canvas.height) c.y = -60;
+        });
+
+        platforms.forEach(p => {
+          p.y += offset;
+          if (p.y > canvas.height) {
+            p.y = 0;
+            p.width = 140 + Math.random() * 50;
+            p.x = Math.random() * (canvas.width - p.width);
+            p.type = platformTypes[Math.floor(Math.random() * platformTypes.length)];
+          }
+        });
+      }
+
+      player.isGrounded = false;
+      platforms.forEach(p => {
+        if (
+          player.vy >= 0 &&
+          player.x + player.width * 0.8 > p.x &&
+          player.x + player.width * 0.2 < p.x + p.width &&
+          player.y + player.height >= p.y &&
+          player.y + player.height <= p.y + p.height + player.vy
+        ) {
+          player.y = p.y - player.height;
+          player.vy = 0;
+          player.isGrounded = true;
+          player.jumpCount = 0;
+        }
+      });
+
+      if (player.y > canvas.height) {
+        endGame("☁️ ตกลงมาจากปุยเมฆแล้ว!");
+      }
+    }
+
+    function drawCuteCloud(x, y, scale) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.beginPath();
+      ctx.arc(x, y, 20 * scale, 0, Math.PI * 2);
+      ctx.arc(x + 18 * scale, y - 10 * scale, 24 * scale, 0, Math.PI * 2);
+      ctx.arc(x + 40 * scale, y, 20 * scale, 0, Math.PI * 2);
+      ctx.arc(x + 20 * scale, y + 8 * scale, 18 * scale, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#ff8fa3';
+      ctx.beginPath();
+      ctx.arc(x + 10 * scale, y + 2 * scale, 3 * scale, 0, Math.PI * 2);
+      ctx.arc(x + 30 * scale, y + 2 * scale, 3 * scale, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#64748b';
+      ctx.beginPath();
+      ctx.arc(x + 14 * scale, y - 2 * scale, 2.5 * scale, 0, Math.PI * 2);
+      ctx.arc(x + 26 * scale, y - 2 * scale, 2.5 * scale, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawPlatform(p) {
+      ctx.save();
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.06)';
+      ctx.shadowOffsetY = 4;
+
+      if (p.type === 'waffle') {
+        ctx.fillStyle = '#fed7aa';
+        ctx.beginPath();
+        ctx.roundRect(p.x, p.y, p.width, p.height, 12);
+        ctx.fill();
+        ctx.strokeStyle = '#f97316';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.roundRect(p.x + p.width / 2 - 12, p.y - 5, 24, 10, 4);
+        ctx.fill();
+        ctx.strokeStyle = '#eab308';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      } else if (p.type === 'jelly') {
+        ctx.fillStyle = '#a7f3d0';
+        ctx.beginPath();
+        ctx.roundRect(p.x, p.y, p.width, p.height, 12);
+        ctx.fill();
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(p.x + 20, p.y + 8, 3.5, 0, Math.PI * 2);
+        ctx.arc(p.x + p.width - 25, p.y + 9, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (p.type === 'cake') {
+        ctx.fillStyle = '#ffe4e6';
+        ctx.beginPath();
+        ctx.roundRect(p.x, p.y, p.width, p.height, 12);
+        ctx.fill();
+        ctx.fillStyle = '#fb7185';
+        ctx.beginPath();
+        ctx.roundRect(p.x, p.y, p.width, 7, [12, 12, 0, 0]);
+        ctx.fill();
+        ctx.strokeStyle = '#f43f5e';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = '#b45309';
+        ctx.beginPath();
+        ctx.roundRect(p.x, p.y, p.width, p.height, 10);
+        ctx.fill();
+        ctx.fillStyle = '#78350f';
+        for (let i = 10; i < p.width - 15; i += 24) {
+          ctx.fillRect(p.x + i, p.y + 4, 16, p.height - 8);
+        }
+      }
+      ctx.restore();
+    }
+
+    function drawPlayer() {
+      const cx = player.x + player.width / 2;
+      const cy = player.y + player.height / 2;
+      const r = player.radius;
+
+      ctx.save();
+
+      const legOffset = player.isGrounded && Math.abs(player.vx) > 0 ? Math.sin(walkCycle) * 5 : 0;
+      ctx.fillStyle = myColor.dark;
+      ctx.beginPath();
+      ctx.arc(cx - 8, cy + r + 2 + legOffset, 5, 0, Math.PI * 2);
+      ctx.arc(cx + 8, cy + r + 2 - legOffset, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = myColor.dark;
+      ctx.beginPath();
+      ctx.arc(cx - 14, cy - r + 4, 7, 0, Math.PI * 2);
+      ctx.arc(cx + 14, cy - r + 4, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffb3c6';
+      ctx.beginPath();
+      ctx.arc(cx - 14, cy - r + 4, 4, 0, Math.PI * 2);
+      ctx.arc(cx + 14, cy - r + 4, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = myColor.main;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
+
+      ctx.fillStyle = myColor.blush;
+      ctx.beginPath();
+      ctx.arc(cx - 11, cy + 5, 4.5, 0, Math.PI * 2);
+      ctx.arc(cx + 11, cy + 5, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      const eyeLook = facing === 'left' ? -4 : 4;
+
+      if (isBlinking) {
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(cx - 6 + eyeLook, cy - 1, 3, 0.2, Math.PI - 0.2);
+        ctx.arc(cx + 6 + eyeLook, cy - 1, 3, 0.2, Math.PI - 0.2);
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(cx - 6 + eyeLook, cy - 2, 4, 0, Math.PI * 2);
+        ctx.arc(cx + 6 + eyeLook, cy - 2, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(cx - 7 + eyeLook, cy - 3.5, 1.8, 0, Math.PI * 2);
+        ctx.arc(cx + 5 + eyeLook, cy - 3.5, 1.8, 0, Math.PI * 2);
+        ctx.arc(cx - 5 + eyeLook, cy - 0.5, 0.9, 0, Math.PI * 2);
+        ctx.arc(cx + 7 + eyeLook, cy - 0.5, 0.9, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx + (eyeLook * 0.4), cy + 4, 3.5, 0.2, Math.PI - 0.2);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      skyGrad.addColorStop(0, '#93c5fd');
+      skyGrad.addColorStop(0.5, '#bae6fd');
+      skyGrad.addColorStop(1, '#e0f2fe');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      clouds.forEach(c => drawCuteCloud(c.x, c.y, c.scale));
+      platforms.forEach(p => drawPlatform(p));
+
+      sparkles.forEach(s => {
+        ctx.save();
+        ctx.globalAlpha = s.alpha;
+        ctx.fillStyle = s.color;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      drawPlayer();
+    }
+
+    function loop() {
+      update();
+      draw();
+      if (!isGameOver) requestAnimationFrame(loop);
+    }
+  </script>
+</body>
+</html>
