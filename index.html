@@ -5,24 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Hunter Cyber Mission - Endless Sweet Edition</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
       user-select: none;
       -webkit-user-select: none;
       -webkit-touch-callout: none;
-      margin: 0;
-      padding: 0;
-      font-family: 'Kanit', system-ui, sans-serif;
     }
     html, body {
+      margin: 0;
+      padding: 0;
       width: 100%;
       height: 100%;
       overflow: hidden;
       background: #e0f2fe;
       color: #0f172a;
-      touch-action: manipulation;
+      font-family: system-ui, -apple-system, sans-serif;
+      touch-action: none;
     }
     body {
       display: flex;
@@ -50,11 +49,6 @@
       font-size: 24px;
       letter-spacing: 0.5px;
     }
-    h2 {
-      color: #e01e37;
-      margin-bottom: 10px;
-      font-size: 20px;
-    }
     .btn {
       background: linear-gradient(135deg, #ff758f, #ff4d6d);
       color: white;
@@ -68,7 +62,6 @@
       margin: 8px 0;
       touch-action: manipulation;
       box-shadow: 0 4px 14px rgba(255, 77, 109, 0.3);
-      transition: transform 0.1s;
     }
     .btn:active { transform: scale(0.98); }
     .btn-excel {
@@ -191,7 +184,7 @@
       background: rgba(255, 255, 255, 0.95);
       border: 2.5px solid #ff758f;
       color: #e01e37;
-      font-size: 22px;
+      font-size: 26px;
       font-weight: 800;
       border-radius: 24px;
       display: flex;
@@ -207,16 +200,12 @@
     }
     .btn-jump-action {
       background: #10b981;
-      border: 2.5px solid #059669;
+      border-color: #059669;
       color: white;
       width: 80px;
       height: 80px;
-      font-size: 30px;
-      border-radius: 24px;
+      font-size: 32px;
       box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
       cursor: pointer;
     }
     .btn-jump-action:active {
@@ -280,11 +269,28 @@
       transition: background 0.15s;
     }
     .quiz-option:active { background: #ff758f; color: white; border-color: #ff758f; }
+
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      text-align: left;
+      font-size: 14px;
+    }
+    .leaderboard-table th {
+      color: #64748b;
+      padding: 8px 4px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .leaderboard-table td {
+      padding: 10px 4px;
+      border-bottom: 1px solid #f1f5f9;
+    }
   </style>
 </head>
 <body>
 
-  <!-- 1. หน้าเลือกโหมด -->
+  <!-- หน้าเลือกโหมด -->
   <div id="view-mode" class="container">
     <h1>HUNTER CYBER MISSION</h1>
     <p style="color: #64748b; font-size:14px; margin-bottom: 16px;">เกมตอบคำถามชิงความสูง (Endless Sweet Edition)</p>
@@ -292,7 +298,7 @@
     <button class="btn" id="btn-mode-join" style="background:#475569;">🎮 ผู้เรียน (Join เข้าเล่น)</button>
   </div>
 
-  <!-- 2. หน้า Host -->
+  <!-- หน้า Host สร้างห้อง -->
   <div id="view-host" class="container hidden">
     <h2>ห้องควบคุมโฮสต์</h2>
     <p style="margin-bottom:2px; font-size:13px; color:#64748b;">รหัสเข้าห้อง (Room PIN):</p>
@@ -320,7 +326,16 @@
     <button id="btn-start" class="btn btn-excel">🚀 เริ่มการแข่งขัน</button>
   </div>
 
-  <!-- 3. หน้า Join -->
+  <!-- หน้ารายงานผลสดของ Host -->
+  <div id="view-host-live" class="container hidden">
+    <h2>📡 การแข่งขันสด</h2>
+    <div style="font-size:32px; font-weight:900; color:#ef4444; margin:8px 0;">
+      ⏳ <span id="host-timer">00:00</span>
+    </div>
+    <div id="live-ranking" style="text-align: left; margin-top:10px; max-height:220px; overflow-y:auto;"></div>
+  </div>
+
+  <!-- หน้า Join เข้าเล่น -->
   <div id="view-join" class="container hidden">
     <h2>เข้าสู่สมรภูมิขนมหวาน</h2>
     <input type="text" id="input-pin" placeholder="รหัสห้อง 6 หลัก" maxlength="6" inputmode="numeric">
@@ -328,20 +343,29 @@
     <button class="btn" id="btn-do-join">เข้าสู่ห้อง</button>
   </div>
 
-  <!-- 4. หน้าจอหลักของเกม -->
+  <!-- หน้ารอเริ่มเกมของผู้เรียน -->
+  <div id="view-waiting" class="container hidden">
+    <h2>ห้องเตรียมพร้อม</h2>
+    <p>รหัสห้อง: <b id="wait-pin" style="color:#e01e37;"></b></p>
+    <p>ผู้เล่น: <b id="wait-name" style="color:#10b981;"></b></p>
+    <p style="color: #f59e0b; margin-top:18px; font-size:15px; font-weight:bold;">⏳ รอสัญญาณปล่อยตัวจากผู้สอน...</p>
+    <button class="btn btn-excel" id="btn-wait-start" style="margin-top:14px;">🎮 ปล่อยตัวเข้าสู่เกมเลย</button>
+  </div>
+
+  <!-- จอเกม Canvas -->
   <div id="game-wrapper" class="hidden">
     <canvas id="gameCanvas"></canvas>
 
     <div class="game-top-bar">
       <div class="stat-pill">⚡ <span id="ui-energy" style="color:#d97706;">5</span></div>
-      <div class="stat-pill" style="color:#ef4444;">⏱️ <span id="ui-timer">03:00</span></div>
+      <div class="stat-pill" style="color:#ef4444;">⏱️ <span id="ui-timer">00:00</span></div>
       <div class="stat-pill">🎯 <span id="ui-height" style="color:#0284c7;">0</span> m</div>
     </div>
 
-    <!-- ปุ่มกดเปิดตอบคำถามตรงกลางล่าง -->
-    <button class="btn-answer-quiz" id="btn-manual-quiz">📝 ตอบคำถามรับพลังงาน</button>
+    <!-- ปุ่มตอบคำถามกลางจอ -->
+    <button class="btn-answer-quiz" id="btn-answer-quiz">📝 ตอบคำถามรับพลังงาน</button>
 
-    <!-- แผงควบคุม ซ้าย-ขวา-โดด -->
+    <!-- แผงควบคุมมือถือ -->
     <div class="controls-bar">
       <div class="d-pad">
         <button class="ctrl-btn" id="btn-left">◀</button>
@@ -352,7 +376,7 @@
       </div>
     </div>
 
-    <!-- กล่องข้อสอบ -->
+    <!-- ป๊อปอัปคำถาม -->
     <div id="quiz-modal" class="hidden">
       <div class="quiz-card">
         <h3 id="quiz-question" style="color:#0f172a; font-size:16px; margin-bottom:14px;">กำลังโหลดคำถาม...</h3>
@@ -362,7 +386,7 @@
   </div>
 
   <script>
-    // --- ข้อสอบ Microsoft Word สำหรับการศึกษา ---
+    // --- คลังข้อสอบสำหรับเล่นในเกม ---
     const quizDatabase = [
       { q: "ปุ่มลัดใดใช้สำหรับ 'คัดลอก' (Copy) ข้อความ?", a: "Ctrl + C", b: "Ctrl + V", c: "Ctrl + X", d: "Ctrl + Z", ans: "A" },
       { q: "ปุ่มลัดใดใช้สำหรับ 'วาง' (Paste) ข้อความ?", a: "Ctrl + P", b: "Ctrl + V", c: "Ctrl + S", d: "Ctrl + C", ans: "B" },
@@ -376,13 +400,14 @@
     const viewMode = document.getElementById('view-mode');
     const viewHost = document.getElementById('view-host');
     const viewJoin = document.getElementById('view-join');
+    const viewWaiting = document.getElementById('view-waiting');
     const gameWrapper = document.getElementById('game-wrapper');
 
     let roomPin = "";
     let playerName = "ผู้เล่นตัวน้อย";
     let gameDurationSec = 180;
 
-    // เลือกโหมด Host
+    // เปิดหน้า Host
     document.getElementById('btn-mode-host').onclick = () => {
       roomPin = Math.floor(100000 + Math.random() * 900000).toString();
       document.getElementById('host-pin').innerText = roomPin;
@@ -408,7 +433,7 @@
       alert("คัดลอกลิงก์ห้องเรียบร้อย ส่งให้นักเรียนได้เลย!");
     };
 
-    // เลือกโหมด Join
+    // เปิดหน้า Join
     document.getElementById('btn-mode-join').onclick = () => {
       viewMode.classList.add('hidden');
       viewJoin.classList.remove('hidden');
@@ -418,7 +443,7 @@
       }
     };
 
-    // กดเริ่มแข่งขันจาก Host
+    // กดเริ่มเกมจาก Host
     document.getElementById('btn-start').onclick = () => {
       gameDurationSec = parseInt(document.getElementById('select-duration').value) * 60;
       initGame();
@@ -427,12 +452,22 @@
     // กดยืนยันเข้าเล่นจาก Join
     document.getElementById('btn-do-join').onclick = () => {
       const name = document.getElementById('input-name').value.trim();
+      const pin = document.getElementById('input-pin').value.trim();
       if (name !== "") playerName = name;
+
+      document.getElementById('wait-pin').innerText = pin || "000000";
+      document.getElementById('wait-name').innerText = playerName;
+
+      viewJoin.classList.add('hidden');
+      viewWaiting.classList.remove('hidden');
+    };
+
+    document.getElementById('btn-wait-start').onclick = () => {
       initGame();
     };
 
     // ==========================================
-    // ระบบกราฟิกและฟิสิกส์เกม (Canvas Engine)
+    // ตัวเกม Canvas Engine
     // ==========================================
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -451,7 +486,7 @@
     let isPaused = false;
     let isGameOver = false;
 
-    // สุ่มพาเลตต์สีตัวละคร
+    // สุ่มสีตัวละคร
     const characterColors = [
       { main: '#ff758f', dark: '#e01e37', blush: '#ff4d6d' },
       { main: '#ffd166', dark: '#f77f00', blush: '#ff5400' },
@@ -471,7 +506,7 @@
     }
     window.addEventListener('resize', resizeCanvas);
 
-    // ตัวละคร
+    // ข้อมูลตัวละคร
     const player = {
       x: 0,
       y: 0,
@@ -488,7 +523,7 @@
       jumpCount: 0
     };
 
-    // เมฆลอย
+    // ก้อนเมฆ
     let clouds = [];
     function initClouds() {
       clouds = [];
@@ -503,17 +538,15 @@
       }
     }
 
-    // แท่นขนมหวาน 4 ชนิด
+    // แท่นกระโดด
     const platformTypes = ['jelly', 'waffle', 'cake', 'choco'];
     let platforms = [];
 
     function initPlatforms() {
       platforms = [];
       const startY = canvas.height - 140;
-      // แท่นแรกสุด
       platforms.push({ x: canvas.width / 2 - 120, y: startY, width: 240, height: 26, type: 'waffle' });
 
-      // แท่นขั้นบันไดเตี้ยๆ กระโดดขึ้นถึงง่าย
       let curY = startY - 55;
       while (curY > -100) {
         const pWidth = 140 + Math.random() * 50;
@@ -532,7 +565,7 @@
     const keys = { left: false, right: false };
     let facing = 'right';
 
-    // การควบคุมด้วยแป้นพิมพ์
+    // คีย์บอร์ด
     window.addEventListener('keydown', (e) => {
       if (e.code === 'ArrowLeft' || e.code === 'KeyA') { keys.left = true; facing = 'left'; }
       if (e.code === 'ArrowRight' || e.code === 'KeyD') { keys.right = true; facing = 'right'; }
@@ -543,11 +576,11 @@
       if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
     });
 
-    // การควบคุมด้วยปุ่มบนหน้าจอสัมผัส
+    // ปุ่มสัมผัส
     const btnLeft = document.getElementById('btn-left');
     const btnRight = document.getElementById('btn-right');
     const btnJump = document.getElementById('btn-jump');
-    const btnManualQuiz = document.getElementById('btn-manual-quiz');
+    const btnAnswerQuiz = document.getElementById('btn-answer-quiz');
 
     btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); keys.left = true; facing = 'left'; });
     btnLeft.addEventListener('touchend', () => keys.left = false);
@@ -560,7 +593,7 @@
     btnRight.addEventListener('mouseup', () => keys.right = false);
 
     btnJump.addEventListener('click', jump);
-    btnManualQuiz.addEventListener('click', () => {
+    btnAnswerQuiz.addEventListener('click', () => {
       if (!isGameOver) showQuiz();
     });
 
@@ -569,6 +602,7 @@
       viewMode.classList.add('hidden');
       viewHost.classList.add('hidden');
       viewJoin.classList.add('hidden');
+      viewWaiting.classList.add('hidden');
       gameWrapper.classList.remove('hidden');
 
       resizeCanvas();
@@ -576,7 +610,7 @@
       initClouds();
       initPlatforms();
 
-      // จัดผู้เล่นยืนรอบนแท่นแรก
+      // ยืนนิ่งๆ บนแท่นแรก
       player.x = platforms[0].x + (platforms[0].width / 2) - (player.width / 2);
       player.y = platforms[0].y - player.height;
       player.vy = 0;
@@ -603,7 +637,7 @@
       uiTimer.innerText = `${m}:${s}`;
     }
 
-    // กระโดด 2 จังหวะ (Double Jump)
+    // กระโดด 2 จังหวะ
     function jump() {
       if (isPaused || isGameOver) return;
 
@@ -639,7 +673,7 @@
       }
     }
 
-    // เปิดหน้าต่างตอบคำถาม
+    // หน้าต่างตอบคำถาม
     function showQuiz() {
       isPaused = true;
       quizModal.classList.remove('hidden');
@@ -743,7 +777,7 @@
         });
       }
 
-      // ตรวจสอบการเหยียบแท่น
+      // เหยียบแท่น
       player.isGrounded = false;
       platforms.forEach(p => {
         if (
@@ -852,7 +886,7 @@
       ctx.restore();
     }
 
-    // วาดตัวละครกลมดุ๊กดิ๊ก
+    // วาดตัวละครดุ๊กดิ๊ก
     function drawPlayer() {
       const cx = player.x + player.width / 2;
       const cy = player.y + player.height / 2;
@@ -867,7 +901,7 @@
       ctx.arc(cx + 8, cy + r + 2 - legOffset, 5, 0, Math.PI * 2);
       ctx.fill();
 
-      // หูสัตว์ 2 ข้าง
+      // หูสัตว์
       ctx.fillStyle = myColor.dark;
       ctx.beginPath();
       ctx.arc(cx - 14, cy - r + 4, 7, 0, Math.PI * 2);
@@ -879,7 +913,7 @@
       ctx.arc(cx + 14, cy - r + 4, 4, 0, Math.PI * 2);
       ctx.fill();
 
-      // ลำตัวกลม
+      // ตัวกลม
       ctx.fillStyle = myColor.main;
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
