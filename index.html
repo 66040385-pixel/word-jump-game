@@ -291,7 +291,7 @@
       box-shadow: 0 3px 10px rgba(0,0,0,0.08);
     }
 
-    /* ขยายขนาดปุ่มซ้าย-ขวา และปุ่มกระโดดให้ใหญ่ขึ้น กดถนัดมือ */
+    /* ปุ่มควบคุมขนาดใหญ่ */
     .controls-bar {
       position: absolute;
       bottom: max(env(safe-area-inset-bottom, 16px), 20px);
@@ -415,7 +415,7 @@
       color: #334155;
     }
 
-    #quiz-modal, #questionBankModal {
+    #quiz-modal, #questionBankModal, #modal-host-auth {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(15, 23, 42, 0.75);
@@ -575,10 +575,7 @@
       flex-shrink: 0;
       transition: all 0.1s;
     }
-    .qb-btn-edit:hover {
-      background: #1d4ed8;
-      color: white;
-    }
+    .qb-btn-edit:hover { background: #1d4ed8; color: white; }
     .qb-btn-delete {
       background: #fff1f2;
       border: 1px solid #fda4af;
@@ -591,19 +588,14 @@
       flex-shrink: 0;
       transition: all 0.1s;
     }
-    .qb-btn-delete:hover {
-      background: #e11d48;
-      color: white;
-    }
+    .qb-btn-delete:hover { background: #e11d48; color: white; }
     .qb-form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 6px;
     }
     @media (max-width: 520px) {
-      .qb-form-grid {
-        grid-template-columns: 1fr;
-      }
+      .qb-form-grid { grid-template-columns: 1fr; }
     }
   </style>
   <script>
@@ -625,8 +617,21 @@
   <div id="view-mode" class="container">
     <h1>HUNTER CYBER MISSION</h1>
     <p style="color: #64748b; font-size:14px; margin-bottom: 20px;">เกมตอบคำถามชิงความสูง (Word Master)</p>
-    <button class="btn" id="btn-mode-host" onclick="window.onHostClick ? window.onHostClick() : switchScreen('view-host')">👑 ผู้สอน (Host สร้างห้อง)</button>
+    <button class="btn" id="btn-mode-host" onclick="openTeacherAuthModal()">👑 ผู้สอน (Host สร้างห้อง)</button>
     <button class="btn" id="btn-mode-join" style="background:#475569;" onclick="switchScreen('view-join')">🎮 ผู้เรียน (Join เข้าเล่น)</button>
+  </div>
+
+  <!-- Modal ตรวจสอบรหัสผ่านครูผู้สอน -->
+  <div id="modal-host-auth" class="hidden">
+    <div class="quiz-card" style="max-width: 360px;">
+      <h3 style="margin: 0 0 8px 0; color: #e01e37; font-size: 18px;">🔒 ยืนยันตัวตนผู้สอน</h3>
+      <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">กรุณากรอกรหัสผ่านเพื่อเปิดห้องเรียน</p>
+      
+      <input type="password" id="input-teacher-pwd" placeholder="รหัสผ่านครู (Default: teacher1234)" style="margin-bottom: 14px;">
+      
+      <button class="btn-sweet-green" onclick="verifyTeacherPassword()">ยืนยันรหัสผ่าน</button>
+      <button class="btn" style="background: #94a3b8; box-shadow: none; margin-top: 6px; padding: 10px;" onclick="closeTeacherAuthModal()">ยกเลิก</button>
+    </div>
   </div>
 
   <!-- 2. โฮสต์สร้างห้อง -->
@@ -725,7 +730,7 @@
     </div>
   </div>
 
-  <!-- 4. Modal คลังข้อสอบ (พร้อมระบบ เพิ่ม / แก้ไข / ลบ ข้อสอบ) -->
+  <!-- 4. Modal คลังข้อสอบ -->
   <div id="questionBankModal" class="hidden">
     <div class="qb-modal-card">
       <div class="qb-header">
@@ -921,6 +926,31 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+
+    // ==========================================
+    // 🔒 รหัสผ่านสำหรับครูผู้สอน (สามารถเปลี่ยนรหัสได้ที่นี่)
+    // ==========================================
+    const TEACHER_PASSWORD = "teacher1234";
+
+    window.openTeacherAuthModal = function() {
+      document.getElementById('input-teacher-pwd').value = '';
+      document.getElementById('modal-host-auth').classList.remove('hidden');
+      setTimeout(() => document.getElementById('input-teacher-pwd').focus(), 200);
+    };
+
+    window.closeTeacherAuthModal = function() {
+      document.getElementById('modal-host-auth').classList.add('hidden');
+    };
+
+    window.verifyTeacherPassword = function() {
+      const pwd = document.getElementById('input-teacher-pwd').value.trim();
+      if (pwd === TEACHER_PASSWORD) {
+        closeTeacherAuthModal();
+        window.onHostClick();
+      } else {
+        alert("⚠️ รหัสผ่านครูผู้สอนไม่ถูกต้อง!");
+      }
+    };
 
     const SWEET_PALETTES = [
       { main: '#ff758f', dark: '#e01e37', blush: '#ff4d6d' },
@@ -1164,7 +1194,6 @@
       showToast('➕ บันทึกข้อสอบใหม่สำเร็จ!');
     }
 
-    // ฟังก์ชันเปิดหน้าฟอร์มแก้ไขคำถาม
     window.editQuestion = function(id) {
       const qItem = quizData.find(item => item.id === id);
       if (!qItem) return;
@@ -1182,7 +1211,6 @@
       switchQbTab('edit');
     };
 
-    // ฟังก์ชันบันทึกการแก้ไขคำถาม
     window.saveEditedQuestion = function() {
       const qId = parseInt(document.getElementById('edit-q-id').value);
       const qText = document.getElementById('edit-q-text').value.trim();
