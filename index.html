@@ -21,7 +21,7 @@
       overflow: hidden;
       background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%);
       color: #f8fafc;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       position: fixed;
     }
     body {
@@ -31,16 +31,16 @@
       justify-content: center;
     }
     .container {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.96);
       border: 2px solid rgba(255, 117, 143, 0.4);
-      border-radius: 32px;
-      padding: 26px;
+      border-radius: 28px;
+      padding: clamp(16px, 3.5vw, 24px);
       max-width: 480px;
-      width: 90%;
+      width: min(90%, 480px);
       text-align: center;
       box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 117, 143, 0.2);
       backdrop-filter: blur(20px);
-      max-height: 90dvh;
+      max-height: 88dvh;
       overflow-y: auto;
       z-index: 100;
       position: relative;
@@ -49,21 +49,23 @@
     h1 {
       color: #e01e37;
       margin: 0 0 6px 0;
-      font-size: 26px;
+      font-size: clamp(20px, 5vw, 26px);
       letter-spacing: 0.5px;
       font-weight: 900;
     }
     h2 {
       color: #e01e37;
       font-weight: 800;
+      font-size: clamp(18px, 4.5vw, 22px);
+      margin: 0 0 10px 0;
     }
     .btn {
       background: linear-gradient(135deg, #ff758f 0%, #ff4d6d 100%);
       color: white;
       border: none;
-      padding: 14px;
+      padding: 13px;
       border-radius: 18px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 800;
       cursor: pointer;
       width: 100%;
@@ -77,7 +79,7 @@
       background: linear-gradient(135deg, #34d399 0%, #059669 100%);
       color: white;
       border: none;
-      padding: 13px;
+      padding: 12px;
       border-radius: 18px;
       font-weight: 800;
       cursor: pointer;
@@ -89,14 +91,14 @@
 
     input, select {
       width: 100%;
-      padding: 13px 16px;
-      margin: 6px 0 12px 0;
+      padding: 12px 14px;
+      margin: 5px 0 10px 0;
       border-radius: 16px;
       border: 2px solid #ffccd5;
       background: #fff5f7;
       color: #e01e37;
       text-align: center;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: bold;
       outline: none;
       user-select: auto;
@@ -109,14 +111,14 @@
       box-shadow: 0 0 0 4px rgba(255, 77, 109, 0.15);
     }
     .pin-display {
-      font-size: 42px;
-      letter-spacing: 8px;
+      font-size: clamp(32px, 8vw, 42px);
+      letter-spacing: 6px;
       font-weight: 900;
       color: #e01e37;
       background: #ffe4e6;
-      padding: 8px;
+      padding: 6px;
       border-radius: 18px;
-      margin: 10px 0;
+      margin: 8px 0;
       border: 2.5px dashed #ff758f;
     }
     .qr-container {
@@ -124,10 +126,10 @@
       flex-direction: column;
       align-items: center;
       background: #fff;
-      padding: 14px;
-      border-radius: 20px;
+      padding: 12px;
+      border-radius: 18px;
       width: fit-content;
-      margin: 10px auto;
+      margin: 8px auto;
       box-shadow: 0 8px 25px rgba(0,0,0,0.08);
       border: 1px solid #ffe4e6;
     }
@@ -136,24 +138,25 @@
       flex-wrap: wrap;
       gap: 6px;
       justify-content: center;
-      margin: 10px 0;
-      max-height: 110px;
+      margin: 8px 0;
+      max-height: 100px;
       overflow-y: auto;
     }
     .badge-player {
       background: #ffe4e6;
-      border: 1px solid #ff758f;
-      padding: 5px 10px 5px 14px;
+      border: 1.5px solid #ff758f;
+      padding: 5px 10px;
       border-radius: 20px;
-      font-size: 13px;
+      font-size: 12px;
       color: #e01e37;
       font-weight: bold;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      box-shadow: 0 2px 6px rgba(255, 117, 143, 0.2);
     }
     .badge-kick-btn {
-      background: #ff4d6d;
+      background: #e11d48;
       color: white;
       border: none;
       border-radius: 50%;
@@ -165,7 +168,10 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      line-height: 1;
+      padding: 0;
     }
+    .badge-kick-btn:active { transform: scale(0.9); }
     .hidden { display: none !important; }
 
     #view-host-live {
@@ -173,46 +179,53 @@
       top: 0; left: 0;
       width: 100vw;
       height: 100dvh;
-      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      background: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #090d16 100%);
       z-index: 40;
       display: flex;
       flex-direction: column;
-      padding: 20px;
+      padding: max(env(safe-area-inset-top, 12px), 12px) max(env(safe-area-inset-right, 16px), 16px) max(env(safe-area-inset-bottom, 12px), 12px) max(env(safe-area-inset-left, 16px), 16px);
       overflow: hidden;
+      gap: 10px;
     }
     .host-header-card {
-      background: rgba(30, 41, 59, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(16px);
-      border-radius: 24px;
-      padding: 18px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+      background: rgba(30, 41, 59, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 12px 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      flex-shrink: 0;
     }
     .host-leader-bar {
-      margin-top: 14px;
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(234, 179, 8, 0.05) 100%);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      padding: 14px 20px;
-      border-radius: 20px;
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.18) 0%, rgba(251, 191, 36, 0.05) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 10px 18px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      flex-shrink: 0;
     }
     .host-table-wrapper {
-      margin-top: 14px;
       flex: 1;
+      min-height: 0;
       overflow-y: auto;
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 24px;
-      padding: 12px;
-      box-shadow: inset 0 4px 15px rgba(0,0,0,0.4);
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 8px 12px;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.4);
+    }
+    .host-table-wrapper::-webkit-scrollbar { width: 6px; }
+    .host-table-wrapper::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
     }
 
     #game-wrapper {
@@ -230,29 +243,23 @@
       height: 100%;
     }
 
-    /* ปรับแต่ง Top Bar ช่องแสดงความสูงให้อยู่ในตำแหน่งพอดี ไม่ชิดขวาเกินไป */
     .game-top-bar {
       position: absolute;
-      top: env(safe-area-inset-top, 14px);
-      left: 14px;
-      right: 14px;
+      top: max(env(safe-area-inset-top, 8px), 8px);
+      left: max(env(safe-area-inset-left, 10px), 10px);
+      right: max(env(safe-area-inset-right, 10px), 10px);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       z-index: 70;
       pointer-events: none;
-    }
-    .game-top-bar-left, .game-top-bar-right {
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
     .stat-pill {
       background: rgba(255, 255, 255, 0.95);
       border: 1.5px solid rgba(255, 117, 143, 0.4);
       backdrop-filter: blur(8px);
-      padding: 7px 12px;
+      padding: 6px 12px;
       border-radius: 20px;
       font-weight: 800;
       font-size: 13px;
@@ -284,11 +291,12 @@
       box-shadow: 0 3px 10px rgba(0,0,0,0.08);
     }
 
+    /* ขยายขนาดปุ่มซ้าย-ขวา และปุ่มกระโดดให้ใหญ่ขึ้น กดถนัดมือ */
     .controls-bar {
       position: absolute;
-      bottom: max(env(safe-area-inset-bottom), 22px);
-      left: 18px;
-      right: 18px;
+      bottom: max(env(safe-area-inset-bottom, 16px), 20px);
+      left: max(env(safe-area-inset-left, 16px), 18px);
+      right: max(env(safe-area-inset-right, 16px), 18px);
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
@@ -296,20 +304,20 @@
       pointer-events: none;
     }
     .touch-dpad-container {
-      background: rgba(255, 255, 255, 0.75);
+      background: rgba(255, 255, 255, 0.82);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 2.5px solid rgba(255, 255, 255, 0.95);
       border-radius: 36px;
       padding: 8px;
-      box-shadow: 0 12px 30px rgba(2, 132, 199, 0.2);
+      box-shadow: 0 12px 30px rgba(2, 132, 199, 0.25);
       display: flex;
-      gap: 10px;
+      gap: 12px;
       pointer-events: auto;
     }
     .touch-btn-arrow {
-      width: 66px;
-      height: 66px;
+      width: clamp(68px, 16vw, 78px);
+      height: clamp(68px, 16vw, 78px);
       border-radius: 26px;
       background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
       border: 2px solid #bae6fd;
@@ -317,27 +325,29 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 26px;
+      font-size: clamp(28px, 7vw, 34px);
       font-weight: 900;
-      box-shadow: 0 5px 0 #7dd3fc, 0 8px 16px rgba(2, 132, 199, 0.15);
+      box-shadow: 0 6px 0 #7dd3fc, 0 8px 18px rgba(2, 132, 199, 0.2);
       transition: all 0.08s ease;
       cursor: pointer;
       touch-action: none;
     }
     .touch-btn-arrow.active {
       transform: translateY(4px);
-      box-shadow: 0 1px 0 #7dd3fc;
+      box-shadow: 0 2px 0 #7dd3fc;
       background: #e0f2fe;
       color: #0369a1;
     }
     .action-pad {
       pointer-events: auto;
-      padding-right: 4px;
-      padding-bottom: 4px;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .touch-btn-jump {
-      width: 82px;
-      height: 82px;
+      width: clamp(84px, 19vw, 96px);
+      height: clamp(84px, 19vw, 96px);
       border-radius: 50%;
       background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
       border: 4px solid #ffffff;
@@ -349,7 +359,7 @@
       transition: all 0.08s ease;
       cursor: pointer;
       touch-action: none;
-      font-size: 36px;
+      font-size: clamp(34px, 8vw, 44px);
       line-height: 1;
     }
     .touch-btn-jump.active {
@@ -360,14 +370,14 @@
 
     #toast-msg {
       position: absolute;
-      top: 65px;
+      top: max(env(safe-area-inset-top, 16px), 16px);
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(15, 23, 42, 0.92);
+      background: rgba(15, 23, 42, 0.94);
       color: white;
-      padding: 10px 22px;
+      padding: 8px 18px;
       border-radius: 20px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: bold;
       z-index: 250;
       opacity: 0;
@@ -377,52 +387,32 @@
     }
     #toast-msg.show {
       opacity: 1;
-      transform: translateX(-50%) translateY(10px);
+      transform: translateX(-50%) translateY(8px);
     }
 
     .cheer-box {
       background: linear-gradient(135deg, #fff1f2, #ffe4e6);
       border: 2px dashed #ff758f;
       border-radius: 18px;
-      padding: 14px;
-      margin: 12px 0;
-      font-size: 14px;
-      line-height: 1.5;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 13px;
+      line-height: 1.4;
       color: #9f1239;
       font-weight: bold;
-      box-shadow: inset 0 2px 6px rgba(255, 117, 143, 0.1);
     }
 
     .error-review-box {
       background: #f8fafc;
       border: 1px solid #cbd5e1;
       border-radius: 16px;
-      padding: 12px;
-      margin: 10px 0;
-      max-height: 140px;
+      padding: 10px;
+      margin: 8px 0;
+      max-height: 120px;
       overflow-y: auto;
       text-align: left;
       font-size: 12px;
       color: #334155;
-    }
-
-    @media (orientation: landscape) {
-      .controls-bar {
-        bottom: max(env(safe-area-inset-bottom), 12px);
-        left: 24px;
-        right: 24px;
-      }
-      .touch-btn-arrow {
-        width: 58px;
-        height: 58px;
-        font-size: 22px;
-        border-radius: 20px;
-      }
-      .touch-btn-jump {
-        width: 72px;
-        height: 72px;
-        font-size: 30px;
-      }
     }
 
     #quiz-modal, #questionBankModal {
@@ -434,31 +424,31 @@
       align-items: center;
       justify-content: center;
       z-index: 200;
-      padding: 16px;
+      padding: 14px;
     }
     .quiz-card {
       background: #ffffff;
-      padding: 24px;
-      border-radius: 28px;
+      padding: 20px;
+      border-radius: 24px;
       width: 100%;
       max-width: 440px;
       border: 2.5px solid #ff758f;
       text-align: center;
       box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-      max-height: 88dvh;
+      max-height: 85dvh;
       overflow-y: auto;
     }
     .quiz-option {
       background: #fff5f7;
       border: 1.5px solid #ffccd5;
       color: #e01e37;
-      padding: 12px 15px;
+      padding: 10px 14px;
       border-radius: 14px;
       width: 100%;
-      margin: 8px 0;
+      margin: 6px 0;
       cursor: pointer;
       text-align: left;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       transition: all 0.15s;
     }
@@ -466,42 +456,58 @@
 
     .leaderboard-table, .host-table {
       width: 100%;
-      border-collapse: collapse;
-      margin-top: 6px;
+      border-collapse: separate;
+      border-spacing: 0 4px;
+      margin-top: 4px;
       text-align: left;
       font-size: 13px;
     }
     .leaderboard-table th {
       color: #64748b;
-      padding: 10px 6px;
+      padding: 8px 6px;
       border-bottom: 2px solid #e2e8f0;
+      font-size: 12px;
     }
     .leaderboard-table td {
-      padding: 10px 6px;
+      padding: 8px 6px;
       border-bottom: 1px solid #f1f5f9;
     }
+
     .host-table th {
       color: #94a3b8;
-      padding: 10px 8px;
-      border-bottom: 2px solid #334155;
-      font-size: 12px;
+      padding: 8px 10px;
+      font-size: 11px;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      background: rgba(15, 23, 42, 0.4);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
     .host-table td {
-      padding: 10px 8px;
-      border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+      padding: 9px 10px;
+      font-size: 13px;
+      background: rgba(30, 41, 59, 0.45);
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .host-table tr td:first-child {
+      border-top-left-radius: 12px;
+      border-bottom-left-radius: 12px;
+    }
+    .host-table tr td:last-child {
+      border-top-right-radius: 12px;
+      border-bottom-right-radius: 12px;
     }
 
     .qb-modal-card {
       background: #ffffff;
       border: 2.5px solid #ff758f;
-      border-radius: 28px;
-      padding: 24px;
+      border-radius: 24px;
+      padding: 20px;
       max-width: 680px;
       width: 95%;
       box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
-      max-height: 88dvh;
+      max-height: 86dvh;
       display: flex;
       flex-direction: column;
       text-align: left;
@@ -512,22 +518,22 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 14px;
+      padding-bottom: 10px;
       border-bottom: 1.5px solid #ffe4e6;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       flex-shrink: 0;
     }
     .qb-tabs {
       display: flex;
       gap: 8px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       flex-shrink: 0;
     }
     .qb-tab-btn {
       flex: 1;
-      padding: 9px 12px;
+      padding: 8px 12px;
       border-radius: 12px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: bold;
       border: 1.5px solid #ffccd5;
       background: #fff5f7;
@@ -549,23 +555,38 @@
     .qb-question-card {
       background: #ffffff;
       border: 1.5px solid #fecdd3;
-      border-radius: 16px;
-      padding: 14px;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 8px;
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 10px;
+      gap: 8px;
+    }
+    .qb-btn-edit {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 11px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.1s;
+    }
+    .qb-btn-edit:hover {
+      background: #1d4ed8;
+      color: white;
     }
     .qb-btn-delete {
       background: #fff1f2;
       border: 1px solid #fda4af;
       color: #e11d48;
-      padding: 5px 12px;
-      border-radius: 10px;
+      padding: 4px 10px;
+      border-radius: 8px;
       font-weight: bold;
-      font-size: 12px;
+      font-size: 11px;
       cursor: pointer;
       flex-shrink: 0;
       transition: all 0.1s;
@@ -577,7 +598,7 @@
     .qb-form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      gap: 6px;
     }
     @media (max-width: 520px) {
       .qb-form-grid {
@@ -646,43 +667,43 @@
     <button id="btn-start" class="btn btn-sweet-green" disabled>🚀 เริ่มการแข่งขัน</button>
   </div>
 
-  <!-- 3. หน้าจอหลักของ Host / Admin (Live Monitor) -->
+  <!-- 3. หน้าจอหลักของ Host (Live Monitor) -->
   <div id="view-host-live" class="hidden">
     <div class="host-header-card">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <button onclick="location.reload()" style="padding: 8px 14px; background: #334155; color: white; border: none; border-radius: 14px; font-weight: bold; font-size: 12px; cursor: pointer;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button onclick="location.reload()" style="padding: 7px 12px; background: #334155; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 11px; cursor: pointer;">
           🔙 ออกจากห้อง
         </button>
         <div style="text-align: left;">
-          <h2 style="font-size: 18px; font-weight: 900; color: #fb7185; margin: 0;">👑 HOST MONITOR</h2>
-          <p style="font-size: 12px; color: #94a3b8; margin: 0;">ห้อง: <span id="live-room-pin" style="font-weight: bold; color: #fda4af;">------</span> | ออนไลน์: <span id="live-player-count" style="font-weight: bold; color: #34d399;">0</span> คน</p>
+          <h2 style="font-size: 16px; font-weight: 900; color: #fb7185; margin: 0; line-height: 1.2;">👑 HOST DASHBOARD</h2>
+          <p style="font-size: 11px; color: #94a3b8; margin: 0;">ห้อง: <span id="live-room-pin" style="font-weight: 900; color: #fda4af;">------</span> | ออนไลน์: <span id="live-player-count" style="font-weight: 900; color: #34d399;">0</span> คน</p>
         </div>
       </div>
       
       <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-        <button onclick="openQuestionBankModal()" style="padding: 8px 14px; background: #4f46e5; color: white; border: none; border-radius: 14px; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);">
-          📝 จัดการคำถาม (<span id="total-q-count">20</span> ข้อ)
+        <button onclick="openQuestionBankModal()" style="padding: 7px 12px; background: #4f46e5; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 11px; cursor: pointer; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35);">
+          📝 คลังคำถาม (<span id="total-q-count">20</span>)
         </button>
-        <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 14px; font-family: monospace; font-size: 20px; color: #fde047; font-weight: 900;">
+        <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 12px; font-family: monospace; font-size: 17px; color: #fde047; font-weight: 900;">
           ⏱️ <span id="host-timer-text">03:00</span>
         </div>
-        <button onclick="exportDataCSV()" class="btn-sweet-green" style="width: auto; padding: 8px 16px; margin: 0; font-size: 12px;">
-          📥 Export รายงาน Excel
+        <button onclick="exportDataCSV()" class="btn-sweet-green" style="width: auto; padding: 7px 14px; margin: 0; font-size: 11px;">
+          📥 Excel (.csv)
         </button>
       </div>
     </div>
 
     <div class="host-leader-bar">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <span style="font-size: 32px;">👑</span>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 26px;">👑</span>
         <div style="text-align: left;">
-          <div style="font-size: 11px; color: #fcd34d; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">ผู้นำอันดับ 1 ตอนนี้</div>
-          <div id="leader-name" style="font-size: 18px; font-weight: 900; color: white;">รอเริ่มกระโดด...</div>
+          <div style="font-size: 10px; color: #fcd34d; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">ผู้นำอันดับ 1</div>
+          <div id="leader-name" style="font-size: 16px; font-weight: 900; color: white;">รอเริ่มกระโดด...</div>
         </div>
       </div>
       <div style="text-align: right;">
-        <div style="font-size: 11px; color: #fcd34d; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">ระยะทางนำ</div>
-        <div id="leader-meters" style="font-size: 24px; font-weight: 900; color: #facc15; font-family: monospace;">0 m</div>
+        <div style="font-size: 10px; color: #fcd34d; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">ระยะทางนำ</div>
+        <div id="leader-meters" style="font-size: 20px; font-weight: 900; color: #facc15; font-family: monospace;">0 m</div>
       </div>
     </div>
 
@@ -690,14 +711,13 @@
       <table class="host-table">
         <thead>
           <tr>
-            <th>อันดับ</th>
+            <th style="width: 70px; text-align: center;">อันดับ</th>
             <th>ชื่อผู้เรียน</th>
-            <th style="text-align: center;">ความสูง (m)</th>
-            <th style="text-align: center;">ตอบถูก</th>
-            <th style="text-align: center;">ตอบผิด</th>
+            <th style="text-align: center;">ความสูง (เมตร)</th>
+            <th style="text-align: center;">ถูก</th>
+            <th style="text-align: center;">ผิด</th>
             <th style="text-align: center;">ความแม่นยำ</th>
             <th style="text-align: center;">พลังงาน</th>
-            <th style="text-align: center;">จัดการ</th>
           </tr>
         </thead>
         <tbody id="host-live-table"></tbody>
@@ -705,58 +725,102 @@
     </div>
   </div>
 
-  <!-- 4. Modal คลังข้อสอบ -->
+  <!-- 4. Modal คลังข้อสอบ (พร้อมระบบ เพิ่ม / แก้ไข / ลบ ข้อสอบ) -->
   <div id="questionBankModal" class="hidden">
     <div class="qb-modal-card">
       <div class="qb-header">
         <div>
-          <h2 style="font-size: 18px; font-weight: 900; color: #e01e37; margin: 0;">
+          <h2 style="font-size: 16px; font-weight: 900; color: #e01e37; margin: 0;">
             📝 คลังข้อสอบ & จัดการคำถาม
           </h2>
-          <p style="font-size: 12px; color: #64748b; margin: 2px 0 0 0;">มีข้อสอบในระบบทั้งหมด <b id="bank-q-count" style="color: #e01e37;">20</b> ข้อ</p>
+          <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">มีข้อสอบทั้งหมด <b id="bank-q-count" style="color: #e01e37;">20</b> ข้อ</p>
         </div>
-        <button onclick="closeQuestionBankModal()" style="padding: 6px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer;">✕ ปิด</button>
+        <button onclick="closeQuestionBankModal()" style="padding: 5px 12px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer;">✕ ปิด</button>
       </div>
 
       <div class="qb-tabs">
-        <button id="qb-tab-view" class="qb-tab-btn active" onclick="switchQbTab('view')">📋 รายการข้อสอบทั้งหมด</button>
-        <button id="qb-tab-add" class="qb-tab-btn" onclick="switchQbTab('add')">➕ เพิ่มคำถามข้อใหม่</button>
+        <button id="qb-tab-view" class="qb-tab-btn active" onclick="switchQbTab('view')">📋 รายการข้อสอบ</button>
+        <button id="qb-tab-add" class="qb-tab-btn" onclick="switchQbTab('add')">➕ เพิ่มข้อใหม่</button>
+        <button id="qb-tab-edit" class="qb-tab-btn hidden" onclick="switchQbTab('edit')">✏️ แก้ไขข้อสอบ</button>
       </div>
 
       <div class="qb-body-scroll">
+        <!-- แผงดูข้อสอบ -->
         <div id="qb-panel-view">
           <div id="questionBankList"></div>
         </div>
 
+        <!-- แผงเพิ่มข้อสอบใหม่ -->
         <div id="qb-panel-add" class="hidden">
-          <div style="background: #fff5f7; border: 1.5px solid #ffccd5; border-radius: 20px; padding: 18px;">
-            <label style="font-size: 13px; font-weight: bold; color: #e01e37; display: block; margin-bottom: 4px;">โจทย์คำถาม:</label>
-            <input id="new-q-text" type="text" placeholder="พิมพ์โจทย์คำถามตรงนี้..." style="margin-bottom: 12px; text-align: left; padding: 12px;">
+          <div style="background: #fff5f7; border: 1.5px solid #ffccd5; border-radius: 18px; padding: 14px;">
+            <label style="font-size: 12px; font-weight: bold; color: #e01e37; display: block; margin-bottom: 4px;">โจทย์คำถามใหม่:</label>
+            <input id="new-q-text" type="text" placeholder="พิมพ์โจทย์คำถาม..." style="margin-bottom: 10px; text-align: left; padding: 10px;">
             
-            <label style="font-size: 13px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">ตัวเลือก 4 ข้อ:</label>
+            <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">ตัวเลือก 4 ข้อ:</label>
             <div class="qb-form-grid">
-              <input id="new-q-a1" type="text" placeholder="ตัวเลือก A" style="text-align: left; padding: 10px; margin-bottom: 8px;">
-              <input id="new-q-a2" type="text" placeholder="ตัวเลือก B" style="text-align: left; padding: 10px; margin-bottom: 8px;">
-              <input id="new-q-a3" type="text" placeholder="ตัวเลือก C" style="text-align: left; padding: 10px; margin-bottom: 8px;">
-              <input id="new-q-a4" type="text" placeholder="ตัวเลือก D" style="text-align: left; padding: 10px; margin-bottom: 8px;">
+              <input id="new-q-a1" type="text" placeholder="ตัวเลือก A" style="text-align: left; padding: 8px; margin-bottom: 6px;">
+              <input id="new-q-a2" type="text" placeholder="ตัวเลือก B" style="text-align: left; padding: 8px; margin-bottom: 6px;">
+              <input id="new-q-a3" type="text" placeholder="ตัวเลือก C" style="text-align: left; padding: 8px; margin-bottom: 6px;">
+              <input id="new-q-a4" type="text" placeholder="ตัวเลือก D" style="text-align: left; padding: 8px; margin-bottom: 6px;">
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 10px;">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 13px; font-weight: bold; color: #0f172a;">เฉลยข้อที่ถูก:</span>
-                <select id="new-q-correct" style="width: auto; margin: 0; padding: 8px 12px; font-size: 14px;">
-                  <option value="0">ตัวเลือก A</option>
-                  <option value="1">ตัวเลือก B</option>
-                  <option value="2">ตัวเลือก C</option>
-                  <option value="3">ตัวเลือก D</option>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 12px; font-weight: bold; color: #0f172a;">เฉลย:</span>
+                <select id="new-q-correct" style="width: auto; margin: 0; padding: 6px 10px; font-size: 13px;">
+                  <option value="0">A</option>
+                  <option value="1">B</option>
+                  <option value="2">C</option>
+                  <option value="3">D</option>
                 </select>
               </div>
-              <button onclick="addNewCustomQuestion()" class="btn-sweet-green" style="width: auto; padding: 10px 22px; margin: 0; font-size: 13px;">
+              <button onclick="addNewCustomQuestion()" class="btn-sweet-green" style="width: auto; padding: 8px 18px; margin: 0; font-size: 12px;">
                 บันทึกข้อสอบ ➕
               </button>
             </div>
           </div>
         </div>
+
+        <!-- แผงแก้ไขข้อสอบที่มีอยู่ -->
+        <div id="qb-panel-edit" class="hidden">
+          <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 18px; padding: 14px;">
+            <input type="hidden" id="edit-q-id">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <label style="font-size: 12px; font-weight: bold; color: #166534;">กำลังแก้ไขข้อสอบ:</label>
+              <span id="edit-q-number" style="font-size: 12px; font-weight: 800; color: #15803d;">ข้อที่ -</span>
+            </div>
+            <input id="edit-q-text" type="text" placeholder="แก้ไขโจทย์คำถาม..." style="margin-bottom: 10px; text-align: left; padding: 10px; border-color:#86efac; background:#ffffff;">
+            
+            <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">แก้ไขตัวเลือก 4 ข้อ:</label>
+            <div class="qb-form-grid">
+              <input id="edit-q-a1" type="text" placeholder="ตัวเลือก A" style="text-align: left; padding: 8px; margin-bottom: 6px; border-color:#86efac; background:#ffffff;">
+              <input id="edit-q-a2" type="text" placeholder="ตัวเลือก B" style="text-align: left; padding: 8px; margin-bottom: 6px; border-color:#86efac; background:#ffffff;">
+              <input id="edit-q-a3" type="text" placeholder="ตัวเลือก C" style="text-align: left; padding: 8px; margin-bottom: 6px; border-color:#86efac; background:#ffffff;">
+              <input id="edit-q-a4" type="text" placeholder="ตัวเลือก D" style="text-align: left; padding: 8px; margin-bottom: 6px; border-color:#86efac; background:#ffffff;">
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 12px; font-weight: bold; color: #0f172a;">เฉลย:</span>
+                <select id="edit-q-correct" style="width: auto; margin: 0; padding: 6px 10px; font-size: 13px; border-color:#86efac;">
+                  <option value="0">A</option>
+                  <option value="1">B</option>
+                  <option value="2">C</option>
+                  <option value="3">D</option>
+                </select>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button onclick="switchQbTab('view')" class="btn" style="width: auto; padding: 8px 14px; margin: 0; font-size: 12px; background:#94a3b8; box-shadow:none;">
+                  ยกเลิก
+                </button>
+                <button onclick="saveEditedQuestion()" class="btn-sweet-green" style="width: auto; padding: 8px 18px; margin: 0; font-size: 12px;">
+                  บันทึกการแก้ไข 💾
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -775,7 +839,7 @@
     <h2>ห้องเตรียมพร้อม</h2>
     <p>รหัสห้อง: <b id="wait-pin" style="color:#e01e37;"></b></p>
     <p>ผู้เล่น: <b id="wait-name" style="color:#10b981;"></b></p>
-    <p style="color: #f59e0b; margin-top:18px; font-size:15px; font-weight:bold;">⏳ รอสัญญาณปล่อยตัวจากผู้สอน...</p>
+    <p style="color: #f59e0b; margin-top:16px; font-size:14px; font-weight:bold;">⏳ รอสัญญาณปล่อยตัวจากผู้สอน...</p>
   </div>
 
   <!-- 7. หน้าจอเล่นเกม Canvas -->
@@ -783,15 +847,11 @@
     <canvas id="gameCanvas"></canvas>
 
     <div class="game-top-bar">
-      <div class="game-top-bar-left">
-        <button class="btn-music-toggle" id="btn-toggle-music">🔊</button>
-        <div class="stat-pill">⚡ <span id="ui-energy" style="color:#d97706;">5</span></div>
-        <button class="btn-top-quiz" id="btn-open-quiz">⚡ ตอบคำถาม (+5)</button>
-      </div>
-      <div class="game-top-bar-right">
-        <div class="stat-pill">⏱️ <span id="ui-timer">00:00</span></div>
-        <div class="stat-pill">🎯 <span id="ui-height" style="color:#0284c7;">0</span>m</div>
-      </div>
+      <div class="stat-pill">⚡ <span id="ui-energy" style="color:#d97706;">5</span></div>
+      <button class="btn-top-quiz" id="btn-open-quiz">⚡ คำถาม (+5)</button>
+      <div class="stat-pill">⏱️ <span id="ui-timer">00:00</span></div>
+      <div class="stat-pill">🎯 <span id="ui-height" style="color:#0284c7;">0</span>m</div>
+      <button class="btn-music-toggle" id="btn-toggle-music">🔊</button>
     </div>
 
     <div class="controls-bar">
@@ -806,10 +866,10 @@
 
     <div id="quiz-modal" class="hidden">
       <div class="quiz-card">
-        <h3 id="quiz-title" style="margin:0 0 10px 0; font-size:17px; color:#e01e37;">⚡ ตอบคำถาม (+5 ⚡)</h3>
-        <p id="quiz-q-text" style="font-weight:bold; font-size:14px; margin:12px 0; color:#0f172a; line-height:1.5; text-align: left;"></p>
+        <h3 id="quiz-title" style="margin:0 0 10px 0; font-size:16px; color:#e01e37;">⚡ ตอบคำถาม (+5 ⚡)</h3>
+        <p id="quiz-q-text" style="font-weight:bold; font-size:13px; margin:10px 0; color:#0f172a; line-height:1.4; text-align: left;"></p>
         <div id="quiz-options-list"></div>
-        <button class="btn hidden" id="btn-close-quiz" style="background:#64748b; margin-top:10px; padding:10px;">ปิดหน้าต่าง</button>
+        <button class="btn hidden" id="btn-close-quiz" style="background:#64748b; margin-top:8px; padding:8px;">ปิดหน้าต่าง</button>
       </div>
     </div>
   </div>
@@ -817,13 +877,13 @@
   <!-- 8. สรุปผลการแข่งขัน -->
   <div id="view-result" class="container hidden">
     <h2 style="color:#d97706; margin-bottom:4px;">🏁 หมดเวลาการแข่งขัน!</h2>
-    <p style="color:#64748b; font-size:13px; margin:0 0 6px 0;">ตารางสรุปคะแนนและสถิติการเรียนรู้</p>
+    <p style="color:#64748b; font-size:12px; margin:0 0 6px 0;">ตารางสรุปคะแนนและสถิติการเรียนรู้</p>
     
     <div id="cheer-message" class="cheer-box">
       🌟 ยอดเยี่ยมมากทุกคน! ไม่ว่าจะอยู่อันดับไหน ความพยายามในการเรียนรู้และฝึกฝนในวันนี้คือพัฒนาการที่ดีเยี่ยม ก้าวต่อไปนะ! 💖
     </div>
 
-    <div style="font-weight: bold; font-size: 13px; color: #1e293b; text-align: left; margin-top: 10px;">📝 รายการข้อสอบที่ควรทบทวน (ตอบผิดซ้ำ):</div>
+    <div style="font-weight: bold; font-size: 12px; color: #1e293b; text-align: left; margin-top: 8px;">📝 รายการข้อสอบที่ควรทบทวน:</div>
     <div id="student-error-review" class="error-review-box">
       กำลังประมวลผลสถิติ...
     </div>
@@ -873,7 +933,6 @@
       { main: '#a3e635', dark: '#65a30d', blush: '#bef264' }
     ];
 
-    // คงชุดคำถามเดิม รันตามข้อ 1 -> 20 ครบแล้ววนใหม่
     let quizData = [
       { id: 1, q: "ปุ่มลัดใดใช้สำหรับ 'ปิดหน้าต่างเอกสารปัจจุบัน' ในโปรแกรม Microsoft Word?", c: ["Ctrl + W", "Ctrl + S", "Ctrl + N", "Ctrl + O"], a: 0 },
       { id: 2, q: "หากต้องการขึ้น 'หน้าใหม่' (Page Break) ทันทีโดยไม่ต้องกด Enter หลายครั้ง ควรใช้ปุ่มลัดใด?", c: ["Shift + Enter", "Ctrl + Enter", "Alt + Enter", "Tab + Enter"], a: 1 },
@@ -1016,19 +1075,26 @@
     window.switchQbTab = function(tab) {
       const tabView = document.getElementById('qb-tab-view');
       const tabAdd = document.getElementById('qb-tab-add');
+      const tabEdit = document.getElementById('qb-tab-edit');
       const panelView = document.getElementById('qb-panel-view');
       const panelAdd = document.getElementById('qb-panel-add');
+      const panelEdit = document.getElementById('qb-panel-edit');
+
+      [tabView, tabAdd, tabEdit].forEach(t => t.classList.remove('active'));
+      [panelView, panelAdd, panelEdit].forEach(p => p.classList.add('hidden'));
 
       if (tab === 'view') {
         tabView.classList.add('active');
-        tabAdd.classList.remove('active');
         panelView.classList.remove('hidden');
-        panelAdd.classList.add('hidden');
-      } else {
+        tabEdit.classList.add('hidden');
+      } else if (tab === 'add') {
         tabAdd.classList.add('active');
-        tabView.classList.remove('active');
         panelAdd.classList.remove('hidden');
-        panelView.classList.add('hidden');
+        tabEdit.classList.add('hidden');
+      } else if (tab === 'edit') {
+        tabEdit.classList.remove('hidden');
+        tabEdit.classList.add('active');
+        panelEdit.classList.remove('hidden');
       }
     }
 
@@ -1042,11 +1108,11 @@
         const div = document.createElement('div');
         div.className = "qb-question-card";
         div.innerHTML = `
-          <div>
-            <div style="font-weight: 800; font-size: 13px; color: #0f172a; line-height: 1.4;">
+          <div style="flex:1;">
+            <div style="font-weight: 800; font-size: 12px; color: #0f172a; line-height: 1.4;">
               ${index + 1}. ${item.q}
             </div>
-            <div style="font-size: 12px; color: #64748b; margin-top: 6px; line-height: 1.5;">
+            <div style="font-size: 11px; color: #64748b; margin-top: 4px; line-height: 1.4;">
               ${item.c.map((c, i) => `
                 <div style="margin-bottom: 2px;">
                   <span style="${i === item.a ? 'color: #059669; font-weight: 800; background: #ecfdf5; padding: 1px 6px; border-radius: 6px;' : ''}">
@@ -1056,7 +1122,10 @@
               `).join('')}
             </div>
           </div>
-          <button onclick="deleteQuestion(${item.id})" class="qb-btn-delete">ลบ</button>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <button onclick="editQuestion(${item.id})" class="qb-btn-edit">✏️ แก้ไข</button>
+            <button onclick="deleteQuestion(${item.id})" class="qb-btn-delete">ลบ</button>
+          </div>
         `;
         listEl.appendChild(div);
       });
@@ -1095,6 +1164,53 @@
       showToast('➕ บันทึกข้อสอบใหม่สำเร็จ!');
     }
 
+    // ฟังก์ชันเปิดหน้าฟอร์มแก้ไขคำถาม
+    window.editQuestion = function(id) {
+      const qItem = quizData.find(item => item.id === id);
+      if (!qItem) return;
+
+      const idx = quizData.findIndex(item => item.id === id);
+      document.getElementById('edit-q-id').value = qItem.id;
+      document.getElementById('edit-q-number').innerText = `ข้อที่ ${idx + 1}`;
+      document.getElementById('edit-q-text').value = qItem.q;
+      document.getElementById('edit-q-a1').value = qItem.c[0] || '';
+      document.getElementById('edit-q-a2').value = qItem.c[1] || '';
+      document.getElementById('edit-q-a3').value = qItem.c[2] || '';
+      document.getElementById('edit-q-a4').value = qItem.c[3] || '';
+      document.getElementById('edit-q-correct').value = qItem.a;
+
+      switchQbTab('edit');
+    };
+
+    // ฟังก์ชันบันทึกการแก้ไขคำถาม
+    window.saveEditedQuestion = function() {
+      const qId = parseInt(document.getElementById('edit-q-id').value);
+      const qText = document.getElementById('edit-q-text').value.trim();
+      const a1 = document.getElementById('edit-q-a1').value.trim();
+      const a2 = document.getElementById('edit-q-a2').value.trim();
+      const a3 = document.getElementById('edit-q-a3').value.trim();
+      const a4 = document.getElementById('edit-q-a4').value.trim();
+      const correctIdx = parseInt(document.getElementById('edit-q-correct').value);
+
+      if (!qText || !a1 || !a2 || !a3 || !a4) {
+        return alert('กรุณากรอกโจทย์และตัวเลือกให้ครบทั้ง 4 ข้อครับ');
+      }
+
+      const qIndex = quizData.findIndex(item => item.id === qId);
+      if (qIndex === -1) return;
+
+      quizData[qIndex] = {
+        id: qId,
+        q: qText,
+        c: [a1, a2, a3, a4],
+        a: correctIdx
+      };
+
+      renderQuestionBankList();
+      switchQbTab('view');
+      showToast('💾 บันทึกการแก้ไขข้อสอบเรียบร้อย!');
+    };
+
     window.deleteQuestion = function(id) {
       if (quizData.length <= 3) {
         return alert('ต้องมีข้อสอบอย่างน้อย 3 ข้อครับ');
@@ -1104,13 +1220,10 @@
       showToast('🗑️ ลบคำถามเรียบร้อย');
     }
 
-    // ฟังก์ชันให้ครูลบผู้เล่นออกจากห้อง
     window.kickPlayer = function(pid) {
       if (!currentPin || !isHost) return;
-      if (confirm('ต้องการนำผู้เล่นนี้ออกจากห้องใช่หรือไม่?')) {
-        remove(ref(db, `rooms/${currentPin}/players/${pid}`));
-        showToast('ลบผู้เล่นออกจากห้องแล้ว');
-      }
+      remove(ref(db, `rooms/${currentPin}/players/${pid}`));
+      showToast('เตะผู้เล่นออกจากห้องแล้ว');
     };
 
     window.onHostClick = function() {
@@ -1123,8 +1236,8 @@
       document.getElementById('qrcode').innerHTML = "";
       new QRCode(document.getElementById("qrcode"), {
         text: joinUrl,
-        width: 130,
-        height: 130
+        width: 120,
+        height: 120
       });
 
       document.getElementById('btn-copy-link').onclick = () => {
@@ -1145,7 +1258,7 @@
         keys.forEach(k => {
           const b = document.createElement('div');
           b.className = 'badge-player';
-          b.innerHTML = `<span>${allPlayersData[k].name}</span><button class="badge-kick-btn" onclick="kickPlayer('${k}')">✕</button>`;
+          b.innerHTML = `<span>${allPlayersData[k].name}</span><button class="badge-kick-btn" onclick="kickPlayer('${k}')" title="ลบออกจากห้อง">✕</button>`;
           list.appendChild(b);
         });
         document.getElementById('btn-start').disabled = keys.length === 0;
@@ -1220,11 +1333,10 @@
         return alert('⚠️ การแข่งขันเริ่มต้นไปแล้วหรือสิ้นสุดแล้ว ไม่สามารถเข้าร่วมได้ในขณะนี้');
       }
 
-      // ป้องกันผู้เล่นชื่อซ้ำกันในห้องเดียวกัน
       const existingPlayers = room.players || {};
       const isNameTaken = Object.values(existingPlayers).some(p => p.name && p.name.trim().toLowerCase() === name.toLowerCase());
       if (isNameTaken) {
-        return alert('⚠️ ชื่อนี้มีผู้เล่นคนอื่นใช้ในห้องแล้ว กรุณาเปลี่ยนชื่อใหม่');
+        return alert('⚠️ ชื่อนี้มีผู้เล่นคนอื่นใช้ในห้องแล้ว กรุณาตั้งชื่อใหม่');
       }
 
       playerName = name;
@@ -1234,9 +1346,8 @@
         const liveRoom = snap.val();
         if (!liveRoom) return;
 
-        // หากผู้เล่นถูกครูกดลบออกจากห้อง
         if (myPlayerId && liveRoom.players && !liveRoom.players[myPlayerId]) {
-          alert('คุณถูกผู้สอนนำออกจากห้องเรียน');
+          alert('คุณถูกผู้สอนนำออกจากห้อง');
           location.reload();
           return;
         }
@@ -1344,14 +1455,12 @@
       if (energy > 0 && !isTrapped) document.getElementById('quiz-modal').classList.add('hidden');
     };
 
-    // ปุ่มเริ่มเกมใหม่: ครูยังคงเป็น Host และกลับไปหน้า Dashboard รอสั่งเริ่มรอบใหม่
     document.getElementById('btn-play-again').onclick = async () => {
       if (isHost && currentPin) {
         await update(ref(db, `rooms/${currentPin}`), {
           status: 'waiting'
         });
         switchScreen('view-host');
-        showToast("รีเซ็ตห้องเรียบร้อย คุณยังคงเป็นผู้สอน");
       } else {
         switchScreen('view-waiting');
       }
@@ -1369,39 +1478,46 @@
       if (!tbody) return;
       tbody.innerHTML = "";
 
-      const sorted = Object.entries(allPlayersData)
-        .sort(([, a], [, b]) => (b.height || 0) - (a.height || 0));
+      const sorted = Object.values(allPlayersData)
+        .sort((a,b) => (b.height || 0) - (a.height || 0));
 
       if (sorted.length > 0) {
-        document.getElementById('leader-name').innerText = sorted[0][1].name || 'Agent';
-        document.getElementById('leader-meters').innerText = (sorted[0][1].height || 0) + " m";
+        document.getElementById('leader-name').innerText = sorted[0].name || 'Agent';
+        document.getElementById('leader-meters').innerText = (sorted[0].height || 0) + " m";
       }
 
-      sorted.forEach(([pid, p], idx) => {
+      sorted.forEach((p, idx) => {
         const correct = p.correct || 0;
         const wrong = p.wrong || 0;
         const total = correct + wrong;
-        const accuracy = total > 0 ? ((correct / total) * 100).toFixed(0) + "%" : "0%";
+        const accuracyNum = total > 0 ? ((correct / total) * 100) : 0;
+        const accuracy = total > 0 ? accuracyNum.toFixed(0) + "%" : "0%";
 
-        let badgeColor = "color: #94a3b8;";
-        if (idx === 0) badgeColor = "color: #facc15; font-weight: 900;";
-        else if (idx === 1) badgeColor = "color: #e2e8f0; font-weight: bold;";
-        else if (idx === 2) badgeColor = "color: #d97706; font-weight: bold;";
+        let rankBadge = `<span style="display:inline-block; width:26px; height:26px; line-height:26px; text-align:center; border-radius:50%; background:#334155; color:#cbd5e1; font-weight:800; font-size:11px;">${idx + 1}</span>`;
+        if (idx === 0) {
+          rankBadge = `<span style="display:inline-block; width:26px; height:26px; line-height:26px; text-align:center; border-radius:50%; background:linear-gradient(135deg, #facc15, #ca8a04); color:#78350f; font-weight:900; font-size:12px; box-shadow:0 0 10px rgba(250, 204, 21, 0.5);">🥇</span>`;
+        } else if (idx === 1) {
+          rankBadge = `<span style="display:inline-block; width:26px; height:26px; line-height:26px; text-align:center; border-radius:50%; background:linear-gradient(135deg, #f1f5f9, #94a3b8); color:#1e293b; font-weight:900; font-size:12px; box-shadow:0 0 10px rgba(203, 213, 225, 0.4);">🥈</span>`;
+        } else if (idx === 2) {
+          rankBadge = `<span style="display:inline-block; width:26px; height:26px; line-height:26px; text-align:center; border-radius:50%; background:linear-gradient(135deg, #fdba74, #ea580c); color:#431407; font-weight:900; font-size:12px; box-shadow:0 0 10px rgba(249, 115, 22, 0.4);">🥉</span>`;
+        }
 
         tbody.innerHTML += `
-          <tr style="transition: background 0.15s;">
-            <td style="padding: 10px 8px; ${badgeColor}">#${idx + 1}</td>
-            <td style="padding: 10px 8px; font-weight: bold; color: white;">${p.name}</td>
-            <td style="padding: 10px 8px; text-align: center; font-family: monospace; font-weight: bold; color: #38bdf8;">${p.height || 0} m</td>
-            <td style="padding: 10px 8px; text-align: center; font-weight: bold; color: #34d399;">${correct}</td>
-            <td style="padding: 10px 8px; text-align: center; font-weight: bold; color: #fb7185;">${wrong}</td>
-            <td style="padding: 10px 8px; text-align: center; color: #cbd5e1;">${accuracy}</td>
-            <td style="padding: 10px 8px; text-align: center; font-weight: bold; color: #fde047;">⚡ ${p.energy !== undefined ? p.energy : 5}</td>
-            <td style="padding: 10px 8px; text-align: center;">
-              <button onclick="kickPlayer('${pid}')" style="background:#ef4444; color:white; border:none; border-radius:10px; padding:4px 10px; font-size:11px; font-weight:bold; cursor:pointer;">
-                ลบ
-              </button>
+          <tr style="transition: transform 0.15s ease;">
+            <td style="text-align: center;">${rankBadge}</td>
+            <td style="font-weight: 800; color: white;">${p.name || 'Agent'}</td>
+            <td style="text-align: center; font-family: monospace; font-weight: 900; color: #38bdf8; font-size: 14px;">${p.height || 0} m</td>
+            <td style="text-align: center; font-weight: 800; color: #34d399;">${correct}</td>
+            <td style="text-align: center; font-weight: 800; color: #fb7185;">${wrong}</td>
+            <td style="text-align: center;">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <div style="width: 42px; height: 5px; background: #334155; border-radius: 4px; overflow: hidden;">
+                  <div style="width: ${accuracyNum}%; height: 100%; background: #34d399;"></div>
+                </div>
+                <span style="color: #cbd5e1; font-size: 11px; font-weight: bold; width: 32px;">${accuracy}</span>
+              </div>
             </td>
+            <td style="text-align: center; font-weight: 800; color: #fde047;">⚡ ${p.energy !== undefined ? p.energy : energy}</td>
           </tr>
         `;
       });
@@ -1492,12 +1608,11 @@
       switchScreen('view-result');
     }
 
-    // รันข้อสอบเรียงข้อ (1 ถึงข้อสุดท้ายจนครบแล้วค่อยวนใหม่)
     function triggerQuizModal(fromTrap = false) {
       if (isGameOver) return;
       
       const q = quizData[currentQ % quizData.length];
-      document.getElementById('quiz-q-text').innerText = `${(currentQ % quizData.length) + 1}. ${q.q}`;
+      document.getElementById('quiz-q-text').innerText = `(ข้อที่ ${(currentQ % quizData.length) + 1}/${quizData.length}) ${q.q}`;
       const list = document.getElementById('quiz-options-list');
       list.innerHTML = "";
 
@@ -1536,18 +1651,18 @@
                 myQuizAnswers[q.id].correct = true;
               }
             }
-            // ผ่านแล้วไปข้อถัดไป
             currentQ++;
 
             if (currentPin && myPlayerId && !fromTrap) {
               update(ref(db, `rooms/${currentPin}/players/${myPlayerId}`), {
                 correct: correctCount,
                 wrong: wrongCount,
-                quizStats: myQuizAnswers
+                quizStats: myQuizAnswers,
+                energy: energy
               });
             }
           } else {
-            showToast('❌ ยังไม่ถูกต้อง ลองพยายามใหม่อีกครั้ง');
+            showToast('❌ ผิด! ลองตอบข้อนี้ดู');
             if (!fromTrap) {
               wrongCount += 1;
               if (myQuizAnswers[q.id]) {
@@ -1560,6 +1675,8 @@
                 });
               }
             }
+            currentQ++;
+            triggerQuizModal(fromTrap);
           }
         };
         list.appendChild(b);
@@ -2139,7 +2256,6 @@
         const targetCamY = player.y - (H * 0.6);
         cameraY += (targetCamY - cameraY) * 0.12;
 
-        // คำนวณความสูงตามพิกัดจริง (ถ้าตกลงมา ความสูงจะลดลงตามตัวละคร)
         currentMeters = Math.max(0, Math.floor(((canvas.height - 60) - (player.y + player.h)) / 6.5));
         document.getElementById('ui-height').innerText = currentMeters;
 
@@ -2153,10 +2269,10 @@
               facing: facing,
               styleIndex: myStyleIndex,
               height: currentMeters,
-              energy: energy,
               correct: correctCount,
               wrong: wrongCount,
-              quizStats: myQuizAnswers
+              quizStats: myQuizAnswers,
+              energy: energy
             });
           }
         }
